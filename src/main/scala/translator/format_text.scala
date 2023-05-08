@@ -1,9 +1,11 @@
 package translator
 
 
-import translator.Translator.translator
+import translator.ScalaTranslator
 
-object text_test extends App {
+object format_text extends App {
+
+    val transl:ScalaTranslator = ScalaTranslator()
 
     def textFormat(text:String, split:String = "\n"): String = {
           val treatmentText = if (text.length > 5000) {
@@ -15,7 +17,7 @@ object text_test extends App {
                   if (textA.length < 5000 - arrayString.length) {
                     arrayString = arrayString + textA
                   } else {
-                    val textReturn = translator(text = arrayString)
+                    val textReturn = transl.translator(text = arrayString)
                     arrayString = ""
                     textReturn
                   }
