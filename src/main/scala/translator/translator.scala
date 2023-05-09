@@ -1,11 +1,9 @@
 package translator
 
-case class ScalaTranslator(var target_language:String = "pt", var source_language:String = "en") {
+case class ScalaTranslator(target_language:String = "pt", source_language:String = "en") {
 
   import java.net.URLEncoder
-  import java.net.URLDecoder
   import org.jsoup.Jsoup
-
 
   def translator(text: String): String = {
 
@@ -16,8 +14,20 @@ case class ScalaTranslator(var target_language:String = "pt", var source_languag
     val r = requests.get(url)
     val doc = Jsoup.parse(r.text())
     val result = doc.select(".result-container").text()
-    val decodedResult = URLDecoder.decode(result, "UTF-8")
-    decodedResult
+    result
+  }
+
+  def translatePdfFile(pdf: PdfToTranslate): Unit = {
+    import Files_management.{createPdfFile, readPdfFiles}
+
+    val textPagesEn = readPdfFiles(pdf.path, startIn = pdf.startIn, endIn = pdf.endIn)
+
+    val textPagesPt = textPagesEn.map(text => {
+      val textPage = this.translator(text)
+      textPage
+    })
+
+    createPdfFile(textPagesPt, pdf.formatNameForSave)
 
   }
 }
