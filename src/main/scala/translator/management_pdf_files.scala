@@ -1,20 +1,32 @@
 package translator
 
 import org.apache.pdfbox.pdmodel.common.PDRectangle
-import org.apache.pdfbox.pdmodel.font.PDType1Font
+import org.apache.pdfbox.pdmodel.font.PDType0Font
 import org.apache.pdfbox.pdmodel.{PDDocument, PDPage, PDPageContentStream}
 import org.apache.pdfbox.text.PDFTextStripper
 import java.io.File
+
+case class PdfToTranslate(startIn:Int,
+                           endIn:Int,
+                           path:String,
+                          nameForSave:String)  {
+  def formatNameForSave: String = {
+    val pathToSave:String = s"${this.path.substring(0,this.path.lastIndexOf("\\") + 1)}\\${this.nameForSave}"
+    pathToSave
+  }
+
+}
 
 
 object Files_management {
 
   def createPdfFile(textToPage:Array[String],pathToSave:String): Unit = {
 
-    val defaultFont = PDType1Font.COURIER
-
     val newDocument = new PDDocument()
     val margin = 10
+
+    val fontFile = new File("C:\\Users\\Pedro\\Downloads\\Arial Unicode MS\\arial_unicode_ms.ttf")
+    val defaultFont = PDType0Font.load(newDocument,fontFile)
 
     val newPageWithText = textToPage.map(text => {
       val blankPage = new PDPage(PDRectangle.A4)
@@ -24,11 +36,10 @@ object Files_management {
       val contentStream = new PDPageContentStream(newDocument, blankPage)
       contentStream.beginText()
       contentStream.setLeading(14) // Define o espaçamento entre as linhas
-      contentStream.setFont(defaultFont, 9) // Define a fonte e o tamanho da fonte
+      contentStream.setFont(defaultFont, 11) // Define a fonte e o tamanho da fonte
       contentStream.newLineAtOffset(70, 750) // Define a posição inicial do texto
       var y = 750 // Posição Y inicial
       var line = ""
-
 
       for (word <- text.split(" ")) {
         val width = defaultFont.getStringWidth(line + " " + word) / 1000 * 12 // Calcula a largura do texto atual
@@ -47,28 +58,35 @@ object Files_management {
       contentStream.close()
     }
     )
-
     newDocument.save(pathToSave)
     newDocument.close()
   }
 
-  def readPdfFiles(pdfPath: String, startIn: Int = 1, endIn: Int = 0): Unit = {
-  val document = PDDocument.load(new File(pdfPath))
+  def readPdfFiles(pdfPath: String, startIn: Int = 1, endIn: Int = 0): Array[String] = {
+
+    val document = PDDocument.load(new File(pdfPath))
 
     val endPage = if (endIn == 0) {
       document.getNumberOfPages
     } else {
       endIn
     }
+    val rangePages = Range(startIn, endPage + 1)
 
-  val rangePages = Range(startIn,endPage+1)
 
-  val stripper = new PDFTextStripper()
-  val text = stripper.getText(document)
+    val indTextPages = rangePages.map(numberPage => {
+        val stripper = new PDFTextStripper()
+        stripper.setStartPage(numberPage)
+        stripper.setEndPage(numberPage)
 
-  document.close()
-}
-//   val pdfFilePath = "C:\\Users\\Pedro\\Desktop\\Studies\\Books\\A-Mind-For-Numbers-How-to-Excel-at-Math-and-Science.pdf"
-//  readPdfFiles(pdfFilePath,startIn = 6, endIn = 214)
+        val text = stripper.getText(document)
+        text
+      })
+
+    document.close()
+    val textPages = indTextPages.toArray
+    textPages
+  }
+
 
 }
