@@ -6,10 +6,7 @@ case class ScalaTranslator(target_language:String = "pt", source_language:String
   import org.jsoup.Jsoup
   import scala.concurrent.Future
   import scala.concurrent.ExecutionContext.Implicits.global
-  import scala.concurrent.{Await, Future}
-  import scala.util.{Failure, Success}
   import requests.Response
-  import scala.concurrent.duration.DurationInt
 
   def translator(text: String, separator: String = "\n"): String = {
     val translatedText = if (text.length > 5000) {
