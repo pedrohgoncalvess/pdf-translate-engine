@@ -1,25 +1,24 @@
 package translator
 
-import java.net.URLEncoder
-import java.net.URLDecoder
-import org.jsoup.Jsoup
+object main extends App{
+
+  val ptMessage = "Olá, meu amigo."
+  val enMessage = "Hello, my friend."
+
+  /*translater en > pt*/
+  val translatorPT = ScalaTranslator()
+  println(translatorPT.translator(enMessage))
+
+  /*translater pt > en*/
+  val translatorEN = ScalaTranslator(target_language="en", source_language= "pt")
+  println(translatorEN.translator(ptMessage))
 
 
 
-object Translator extends App{
+  /*instantiating pdf for translate*/
+  val typeTheory = PdfToTranslate(startIn=2,path="C:\\Users\\Pedro\\Desktop\\Studies\\Books\\Type_theory_and_functional_programming.pdf",nameForSave="Teoria_de_tipos_func_programming.pdf")
 
+  /*translating pdf*/
+  val pdfTranslater = translatorPT.translatePdfFile(typeTheory)
 
-    def translator(target_language:String = "pt",source_language:String = "en",text:String): String = {
-
-    val escaped_text = URLEncoder.encode(text, "UTF-8").replace("+","%20")
-
-    val url = s"https://translate.google.com/m?tl=$target_language&sl=$source_language&q=$escaped_text"
-
-
-    val r = requests.get(url)
-    val doc = Jsoup.parse(r.text())
-    val result = doc.select(".result-container").text()
-    val decodedResult = URLDecoder.decode(result, "UTF-8")
-    decodedResult
   }
-}
